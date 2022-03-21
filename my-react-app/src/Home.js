@@ -6,7 +6,8 @@ const Home = () => {
     //let name = 'mario';
     // make a usestate
     const [blogs, setBlogs] = useState(null);
-    const [isPending, setIsPending] = useState(true)
+    const [isPending, setIsPending] = useState(true);
+    const [error, setError] = useState(null);
 
     const [name2, setName2] = useState('mario');
 
@@ -16,13 +17,21 @@ const Home = () => {
         setTimeout(() => {
             fetch('http://localhost:8000/blogs')
             .then(res => {
+                console.log(res)
+                if (!res.ok) {
+                    throw Error('could not fetch the bacon for that resource')
+                }
                 return res.json()
             })
             .then(data => {
-                console.log(data);
                 setBlogs(data);
                 setIsPending(false);
-            });
+                setError(null);
+            })
+            .catch(err => {
+                setIsPending(false);
+                setError(err.message);
+            })
         }, 1000);
        
     }, []);
@@ -41,7 +50,8 @@ const Home = () => {
             <p>{ name } is { age } years old</p>
             <button onClick={handleClick}>Klik her</button>
 
-            {isPending && <div>Loading...</div>}
+            { error && <div>{ error }</div> }
+            {isPending && <div>Loading...</div> }
             {blogs && <BlogList blogs={blogs} title="All Blogs"/>}
             {/* <BlogList blogs={blogs.filter((blog) => blog.author === 'mario')} title="Mario's blogs"/> */}
             <button onClick={() => setName2('luigi')}>change name</button>
